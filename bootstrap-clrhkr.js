@@ -1,0 +1,381 @@
+/*
+ Bootstrap Colorhacker V0.1 (compatible to Bootstrap 4 alpha 6)
+ 
+ Copyright (c) 2017 Thomas Reiser
+ 
+ Released under the MIT license
+*/
+window.HackBootstrapColors = function(colors) {
+    if (!window.HACK_BOOTSTRAP_COLOR_RANDOM_ID) {
+    window.HACK_BOOTSTRAP_COLOR_RANDOM_ID = 'bsclrhkr-' + Date.now();
+    }
+
+    colors = colors || {};
+    
+    // Define default colors taken from Bootstrap CSS
+    var defaultColors = {
+        primary: '#0275d8',
+        info: '#5bc0de'
+    };
+    var newColors = JSON.parse(JSON.stringify(defaultColors));
+    
+    // Merge pre-defined colors with colors given by the user
+    var RGB_REGEX = /^#[0-9A-F]{6}$/i;
+    Object.keys(colors).forEach(function(type) {
+        // Check if it is a valid color code
+        if (RGB_REGEX.test(colors[type])) {
+            newColors[type] = colors[type].toLowerCase();
+        }
+    });
+    
+    var hexToRgb = function(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    };
+    var rgbToHex = function(rgb) {
+        return '#' + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
+    };
+    var luminance = function(r, g, b) {
+        var a = [r, g, b].map(function(v) {
+            v /= 255;
+            return (v <= 0.03928) ? v / 12.92 : Math.pow(((v + 0.055) / 1.055), 2.4);
+        });
+        return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
+    };
+    var darkerColor = function(hex1, hex2, diff) {
+        var base = hexToRgb(hex1);
+        var lum = luminance(base.r, base.g, base.b) + 0.05;
+        var darkened = hexToRgb(hex2);
+        var i = 0;
+        while ((lum / (luminance(darkened.r, darkened.g, darkened.b) + 0.05) <= diff) && i++ < 100) {
+            darkened.r = Math.round((0 - darkened.r) * 0.05) + darkened.r;
+            darkened.g = Math.round((0 - darkened.g) * 0.05) + darkened.g;
+            darkened.b = Math.round((0 - darkened.b) * 0.05) + darkened.b;
+        }
+        return rgbToHex(darkened);
+    };
+    var whiteText = function(hex) {
+        var rgb = hexToRgb(hex);
+        return (1.05 /* (luminance(255, 255, 255) + 0.05) */ / (luminance(rgb.r, rgb.g, rgb.b) + 0.05)) > 1.5;
+    };
+    
+    var CSS_TEMPLATE_PRIMARY = '\
+    a, \
+    .btn-link { \
+        color: %primary_text%; \
+    } \
+    a:focus, \
+    a:hover, \
+        .btn-link:focus, \
+        .btn-link:hover, \
+        .page-link:focus, \
+        .page-link:hover { \
+        color: %primary_text_dark%; \
+    } \
+    button:focus { \
+        outline: 5px auto %primary%; \
+    } \
+    a.breadcrumb-item, \
+    a.nav-link { \
+        background-color: %primary_link_bg%; \
+        color: %primary_link%; \
+    } \
+    a.nav-link:hover { \
+        color: %primary_dark%; \
+    } \
+    .btn-primary { \
+        background-color: %primary%; \
+        border-color: %primary%; \
+        color: %primary_text%; \
+    } \
+    .btn-primary:active, .btn-primary.active, \
+    .show > .btn-primary.dropdown-toggle, \
+    .btn-primary:hover, \
+    .btn-outline-primary:active, \
+    .btn-outline-primary.active, \
+    .show > .btn-outline-primary.dropdown-toggle { \
+        background-color: %primary_dark%; \
+        border-color: %primary_dark%; \
+    } \
+    .btn-outline-primary:hover, \
+    .btn-primary.disabled, \
+    .btn-primary:disabled, \
+    .card-primary, \
+    .page-item.active .page-link { \
+        background-color: %primary%; \
+        border-color: %primary%; \
+    } \
+    .btn-outline-primary.disabled, \
+    .btn-outline-primary:disabled, \
+    .btn-primary.disabled:hover, \
+    .btn-primary:disabled:hover { \
+        color: %primary_text%; \
+    } \
+    .btn-outline-primary { \
+        color: %primary%; \
+        border-color: %primary%; \
+    } \
+    .btn-primary:focus, .btn-primary.focus, .btn-outline-primary:focus, .btn-outline-primary.focus, .btn:focus, .btn.focus { \
+        -webkit-box-shadow: 0 0 0 2px %primary_light%; \
+        box-shadow: 0 0 0 2px %primary_light%; \
+    } \
+    .dropdown-item.active, \
+    .dropdown-item:active, \
+    .custom-control-input:checked ~ .custom-control-indicator, \
+    .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-indicator { \
+        background-color: %primary%; \
+    } \
+        .custom-control-input:focus ~ .custom-control-indicator { \
+        -webkit-box-shadow: 0 0 0 1px #fff, 0 0 0 3px %primary%; \
+        box-shadow: 0 0 0 1px #fff, 0 0 0 3px %primary%; \
+    } \
+    .custom-control-input:active:not(:disabled) ~ .custom-control-indicator { \
+        background-color: %primary_light%; \
+    } \
+    .nav-pills .nav-item.show .nav-link, \
+    .nav-pills .nav-link.active, \
+    .badge-primary, \
+    .progress-bar { \
+        background-color: %primary%; \
+        color: %primary_text%; \
+    } \
+    .card-inverse.card-primary .card-blockquote, \
+    .text-primary { \
+        color: %primary_text% !important; \
+    } \
+    .card-outline-primary, \
+    .form-control:focus, \
+    .custom-select:focus { \
+        border-color: %primary%; \
+    } \
+    .page-link { \
+        color: %primary%; \
+    } \
+    .badge-primary[href]:focus, .badge-primary[href]:hover { \
+        background-color: %primary_dark%; \
+    } \
+    .list-group-item.active { \
+        background-color: %primary%; \
+        border-color: %primary%; \
+        color: %primary_text% !important; \
+    } \
+    .list-group-item.active .text-muted { \
+        color: %primary_text% !important; \
+    } \
+    .bg-primary { \
+        background-color: %primary% !important; \
+        color: %primary_text%; \
+    } \
+    a.bg-primary:focus, a.bg-primary:hover { \
+        background-color: %primary_dark% !important; \
+    } \
+    a.text-primary:focus, a.text-primary:hover { \
+        color: %primary_dark% !important; \
+    } \
+    .sw-theme-arrows > ul.step-anchor > li.active > a { \
+        background: %primary% !important; \
+        border-color: %primary% !important; \
+        color: %primary_text% !important; \
+    } \
+    .sw-theme-arrows > ul.step-anchor > li.active > a:after { \
+        border-left: 30px solid %primary% !important; \
+    } \
+    ';
+    
+    var CSS_TEMPLATE_INFO = '\
+    .btn-info { \
+        background-color: %info%; \
+        border-color: %info%; \
+        color: %info_text%; \
+    } \
+    .btn-info.disabled, \
+    .btn-info:disabled, \
+    .btn-outline-info:hover, \
+    .btn-outline-info:active, \
+    .btn-outline-info.active, \
+    .show > .btn-outline-info.dropdown-toggle, \
+    .card-info { \
+        background-color: %info%; \
+        border-color: %info%; \
+    } \
+    .btn-outline-info { \
+        color: %info%; \
+        border-color: %info%; \
+    } \
+    .btn-outline-info.disabled, .btn-outline-info:disabled { \
+        color: %info%; \
+    } \
+    .btn-info:focus, btn-info.focus { \
+        -webkit-box-shadow: 0 0 0 2px %info_light%; \
+        box-shadow: 0 0 0 2px %info_light%; \
+    } \
+    .btn-info:hover, \
+    .btn-info:active, \
+    .btn-info.active, \
+    .show > .btn-info.dropdown-toggle { \
+        background-color: %info_dark%; \
+        border-color: %info_dark%; \
+    } \
+    .card-outline-info { \
+        border-color: %info%; \
+    } \
+    .card-inverse.card-info .card-blockquote { \
+        color: %info_text% !important; \
+    } \
+    .badge-info { \
+        background-color: %info%; \
+        color: %info_text%; \
+    } \
+    .badge-info[href]:focus, .badge-info[href]:hover { \
+        background-color: %info_dark%; \
+    } \
+    .bg-info { \
+        background-color: %info% !important; \
+        color: %info_text%; \
+    } \
+    .text-info { \
+        color: %info% !important; \
+    } \
+    .list-group-item-info, a.list-group-item-info { \
+        background-color: %info_light%; \
+        color: %info_text%; \
+    } \
+    a.list-group-item-info:hover { \
+        background-color: %info_medium%; \
+        color: %info_text%; \
+    } \
+    ';
+    
+    var css = '';
+    
+    if (newColors.primary !== defaultColors.primary) {
+        // Calculate optimal color shades for primary color
+        newColors.primaryText = localStorage.getItem('bootstrap-clrhkr-pt-' + newColors.primary);
+        if (!newColors.primaryText) {
+            if (whiteText(newColors.primary)) {
+                newColors.primaryText = '#ffffff';
+            } else {
+                newColors.primaryText = darkerColor(newColors.primary, newColors.primary, 5);
+            }
+            localStorage.setItem('bootstrap-clrhkr-pt-' + newColors.primary, newColors.primaryText);
+        }
+        newColors.primaryTextDark = localStorage.getItem('bootstrap-clrhkr-ptd-' + newColors.primary);
+        if (!newColors.primaryTextDark) {
+            if (whiteText(newColors.primary)) {
+                newColors.primaryTextDark = '#cccccc';
+            } else {
+                newColors.primaryTextDark = darkerColor('#ffffff', newColors.primary, 15);
+            }
+            localStorage.setItem('bootstrap-clrhkr-ptd-' + newColors.primary, newColors.primaryTextDark);
+        }
+        newColors.primaryDark = localStorage.getItem('bootstrap-clrhkr-pd-' + newColors.primary);
+        if (!newColors.primaryDark) {
+            newColors.primaryDark = darkerColor(newColors.primary, newColors.primary, 1.2);
+            localStorage.setItem('bootstrap-clrhkr-pd-' + newColors.primary, newColors.primaryDark);
+        }
+        newColors.primaryLight = localStorage.getItem('bootstrap-clrhkr-pl-' + newColors.primary);
+        if (!newColors.primaryLight) {
+            var rgb = hexToRgb(newColors.primary);
+            newColors.primaryLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.4)';
+            localStorage.setItem('bootstrap-clrhkr-pl-' + newColors.primary, newColors.primaryLight);
+        }
+        newColors.primaryLinkBg = localStorage.getItem('bootstrap-clrhkr-plb-' + newColors.primary);
+        if (!newColors.primaryLinkBg) {
+            if (!whiteText(newColors.primary)) {
+                var rgb = hexToRgb(newColors.primary);
+                newColors.primaryLinkBg = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.2)';
+            } else {
+                newColors.primaryLinkBg = 'transparent';
+            }
+            localStorage.setItem('bootstrap-clrhkr-plb-' + newColors.primary, newColors.primaryLinkBg);
+        }
+        newColors.primaryLink = localStorage.getItem('bootstrap-clrhkr-plk-' + newColors.primary);
+        if (!newColors.primaryLink) {
+            if (!whiteText(newColors.primary)) {
+                newColors.primaryLink = newColors.primaryText;
+            } else {
+                newColors.primaryLink = newColors.primary;
+            }
+            localStorage.setItem('bootstrap-clrhkr-plk-' + newColors.primary, newColors.primaryLink);
+        }
+        
+        css += CSS_TEMPLATE_PRIMARY.replace(/%primary%/g, newColors.primary)
+                                   .replace(/%primary_text%/g, newColors.primaryText)
+                                   .replace(/%primary_link_bg%/g, newColors.primaryLinkBg)
+                                   .replace(/%primary_link%/g, newColors.primaryLink)
+                                   .replace(/%primary_dark%/g, newColors.primaryDark)
+                                   .replace(/%primary_text_dark%/g, newColors.primaryTextDark)
+                                   .replace(/%primary_light%/g, newColors.primaryLight);
+    }
+    
+    if (newColors.info !== defaultColors.info) {
+        // Calculate optimal color shades for info color
+        newColors.infoText = localStorage.getItem('bootstrap-clrhkr-it-' + newColors.info);
+        if (!newColors.infoText) {
+            if (whiteText(newColors.info)) {
+                newColors.infoText = '#ffffff';
+            } else {
+                newColors.infoText = darkerColor('#ffffff', newColors.info, 5);
+            }
+            localStorage.setItem('bootstrap-clrhkr-it-' + newColors.info, newColors.infoText);
+        }
+        newColors.infoDark = localStorage.getItem('bootstrap-clrhkr-id-' + newColors.info);
+        if (!newColors.infoDark) {
+            newColors.infoDark = darkerColor(newColors.info, newColors.info, 1);
+            localStorage.setItem('bootstrap-clrhkr-id-' + newColors.info, newColors.infoDark);
+        }
+        newColors.infoMedium = localStorage.getItem('bootstrap-clrhkr-im-' + newColors.info);
+        if (!newColors.infoMedium) {
+            var rgb = hexToRgb(newColors.info);
+            newColors.infoMedium = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.6)';
+            localStorage.setItem('bootstrap-clrhkr-im-' + newColors.info, newColors.infoMedium);
+        }
+        newColors.infoLight = localStorage.getItem('bootstrap-clrhkr-il-' + newColors.info);
+        if (!newColors.infoLight) {
+            var rgb = hexToRgb(newColors.info);
+            newColors.infoLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.4)';
+            localStorage.setItem('bootstrap-clrhkr-il-' + newColors.info, newColors.infoLight);
+        }
+        
+        css += CSS_TEMPLATE_INFO.replace(/%info%/g, newColors.info)
+                                .replace(/%info_text%/g, newColors.infoText)
+                                .replace(/%info_dark%/g, newColors.infoDark)
+                                .replace(/%info_medium%/g, newColors.infoMedium)
+                                .replace(/%info_light%/g, newColors.infoLight);
+    }
+    
+    if (css.length > 0) {
+        var style = document.querySelector('style#' + HACK_BOOTSTRAP_COLOR_RANDOM_ID);
+        if (!style) {
+            style = document.createElement('style');
+            style.setAttribute('id', HACK_BOOTSTRAP_COLOR_RANDOM_ID);
+            style.type = 'text/css';
+            document.querySelector('head').appendChild(style);
+        }
+        style.innerHTML = css.replace(/\s+/g, ' ');
+    }
+};
+
+// Try to automatically hack colors
+var scriptElem = document.querySelector('script#bootstrap-clrhkr');
+if (scriptElem) {
+    var newColors = {};
+    
+    var primaryColor = scriptElem.getAttribute('data-primary-color');
+    if (primaryColor) {
+        newColors.primary = primaryColor;
+    }
+    
+    var infoColor = scriptElem.getAttribute('data-info-color');
+    if (infoColor) {
+        newColors.info = infoColor;
+    }
+    
+    if (Object.keys(newColors).length > 0) {
+        HackBootstrapColors(newColors);
+    }
+}

@@ -56,7 +56,12 @@ window.HackBootstrapColors = function(colors) {
             darkened.g = Math.round((0 - darkened.g) * 0.05) + darkened.g;
             darkened.b = Math.round((0 - darkened.b) * 0.05) + darkened.b;
         }
-        return rgbToHex(darkened);
+        var darkLum = luminance(darkened.r, darkened.g, darkened.b);
+        if (darkLum > 0.12) {
+            return rgbToHex(darkened);
+        } else {
+            return '#000000';
+        }
     };
     var whiteText = function(hex) {
         var rgb = hexToRgb(hex);
@@ -64,16 +69,21 @@ window.HackBootstrapColors = function(colors) {
     };
     
     var CSS_TEMPLATE_PRIMARY = '\
-    a, \
+    .primary-color { \
+        color: %primary%; \
+    } \
+    a { \
+    	color: #464a4c; \
+    } \
     .btn-link { \
         color: %primary_text%; \
     } \
     a:focus, \
     a:hover, \
-        .btn-link:focus, \
-        .btn-link:hover, \
-        .page-link:focus, \
-        .page-link:hover { \
+    .btn-link:focus, \
+    .btn-link:hover, \
+    .page-link:focus, \
+    .page-link:hover { \
         color: %primary_text_dark%; \
     } \
     button:focus { \
@@ -81,11 +91,14 @@ window.HackBootstrapColors = function(colors) {
     } \
     a.breadcrumb-item, \
     a.nav-link { \
-        background-color: %primary_link_bg%; \
         color: %primary_link%; \
     } \
-    a.nav-link:hover { \
-        color: %primary_dark%; \
+    a.nav-link.active:hover { \
+        color: #464a4c; \
+    } \
+    a.nav-link:not(.active):hover { \
+        background-color: %primary_link_bg%; \
+        color: %primary_link%; \
     } \
     .btn-primary { \
         background-color: %primary%; \
@@ -100,6 +113,7 @@ window.HackBootstrapColors = function(colors) {
     .show > .btn-outline-primary.dropdown-toggle { \
         background-color: %primary_dark%; \
         border-color: %primary_dark%; \
+        color: %primary_text%; \
     } \
     .btn-outline-primary:hover, \
     .btn-primary.disabled, \
@@ -143,6 +157,9 @@ window.HackBootstrapColors = function(colors) {
         background-color: %primary%; \
         color: %primary_text%; \
     } \
+    .tiresearch .nav-pills a.nav-link.active{ \
+    	border: 1px solid %primary%; \
+    } \
     .card-inverse.card-primary .card-blockquote, \
     .text-primary { \
         color: %primary_text% !important; \
@@ -175,14 +192,6 @@ window.HackBootstrapColors = function(colors) {
     } \
     a.text-primary:focus, a.text-primary:hover { \
         color: %primary_dark% !important; \
-    } \
-    .sw-theme-arrows > ul.step-anchor > li.active > a { \
-        background: %primary% !important; \
-        border-color: %primary% !important; \
-        color: %primary_text% !important; \
-    } \
-    .sw-theme-arrows > ul.step-anchor > li.active > a:after { \
-        border-left: 30px solid %primary% !important; \
     } \
     ';
     
@@ -252,38 +261,53 @@ window.HackBootstrapColors = function(colors) {
     
     var css = '';
     
+    var storageGet = function(key) {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            return null;
+        }
+    };
+    
+    var storageSet = function(key, value) {
+        try {
+            localStorage.setItem(key, value);
+        } catch (e) {
+        }
+    };
+    
     if (newColors.primary !== defaultColors.primary) {
         // Calculate optimal color shades for primary color
-        newColors.primaryText = localStorage.getItem('bootstrap-clrhkr-pt-' + newColors.primary);
+        newColors.primaryText = storageGet('bootstrap-clrhkr-pt-' + newColors.primary);
         if (!newColors.primaryText) {
             if (whiteText(newColors.primary)) {
                 newColors.primaryText = '#ffffff';
             } else {
                 newColors.primaryText = darkerColor(newColors.primary, newColors.primary, 5);
             }
-            localStorage.setItem('bootstrap-clrhkr-pt-' + newColors.primary, newColors.primaryText);
+            storageSet('bootstrap-clrhkr-pt-' + newColors.primary, newColors.primaryText);
         }
-        newColors.primaryTextDark = localStorage.getItem('bootstrap-clrhkr-ptd-' + newColors.primary);
+        newColors.primaryTextDark = storageGet('bootstrap-clrhkr-ptd-' + newColors.primary);
         if (!newColors.primaryTextDark) {
             if (whiteText(newColors.primary)) {
                 newColors.primaryTextDark = '#cccccc';
             } else {
                 newColors.primaryTextDark = darkerColor('#ffffff', newColors.primary, 15);
             }
-            localStorage.setItem('bootstrap-clrhkr-ptd-' + newColors.primary, newColors.primaryTextDark);
+            storageSet('bootstrap-clrhkr-ptd-' + newColors.primary, newColors.primaryTextDark);
         }
-        newColors.primaryDark = localStorage.getItem('bootstrap-clrhkr-pd-' + newColors.primary);
+        newColors.primaryDark = storageGet('bootstrap-clrhkr-pd-' + newColors.primary);
         if (!newColors.primaryDark) {
             newColors.primaryDark = darkerColor(newColors.primary, newColors.primary, 1.2);
-            localStorage.setItem('bootstrap-clrhkr-pd-' + newColors.primary, newColors.primaryDark);
+            storageSet('bootstrap-clrhkr-pd-' + newColors.primary, newColors.primaryDark);
         }
-        newColors.primaryLight = localStorage.getItem('bootstrap-clrhkr-pl-' + newColors.primary);
+        newColors.primaryLight = storageGet('bootstrap-clrhkr-pl-' + newColors.primary);
         if (!newColors.primaryLight) {
             var rgb = hexToRgb(newColors.primary);
             newColors.primaryLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.4)';
-            localStorage.setItem('bootstrap-clrhkr-pl-' + newColors.primary, newColors.primaryLight);
+            storageSet('bootstrap-clrhkr-pl-' + newColors.primary, newColors.primaryLight);
         }
-        newColors.primaryLinkBg = localStorage.getItem('bootstrap-clrhkr-plb-' + newColors.primary);
+        newColors.primaryLinkBg = storageGet('bootstrap-clrhkr-plb-' + newColors.primary);
         if (!newColors.primaryLinkBg) {
             if (!whiteText(newColors.primary)) {
                 var rgb = hexToRgb(newColors.primary);
@@ -291,16 +315,16 @@ window.HackBootstrapColors = function(colors) {
             } else {
                 newColors.primaryLinkBg = 'transparent';
             }
-            localStorage.setItem('bootstrap-clrhkr-plb-' + newColors.primary, newColors.primaryLinkBg);
+            storageSet('bootstrap-clrhkr-plb-' + newColors.primary, newColors.primaryLinkBg);
         }
-        newColors.primaryLink = localStorage.getItem('bootstrap-clrhkr-plk-' + newColors.primary);
+        newColors.primaryLink = storageGet('bootstrap-clrhkr-plk-' + newColors.primary);
         if (!newColors.primaryLink) {
             if (!whiteText(newColors.primary)) {
                 newColors.primaryLink = newColors.primaryText;
             } else {
                 newColors.primaryLink = newColors.primary;
             }
-            localStorage.setItem('bootstrap-clrhkr-plk-' + newColors.primary, newColors.primaryLink);
+            storageSet('bootstrap-clrhkr-plk-' + newColors.primary, newColors.primaryLink);
         }
         
         css += CSS_TEMPLATE_PRIMARY.replace(/%primary%/g, newColors.primary)
@@ -314,31 +338,31 @@ window.HackBootstrapColors = function(colors) {
     
     if (newColors.info !== defaultColors.info) {
         // Calculate optimal color shades for info color
-        newColors.infoText = localStorage.getItem('bootstrap-clrhkr-it-' + newColors.info);
+        newColors.infoText = storageGet('bootstrap-clrhkr-it-' + newColors.info);
         if (!newColors.infoText) {
             if (whiteText(newColors.info)) {
                 newColors.infoText = '#ffffff';
             } else {
                 newColors.infoText = darkerColor('#ffffff', newColors.info, 5);
             }
-            localStorage.setItem('bootstrap-clrhkr-it-' + newColors.info, newColors.infoText);
+            storageSet('bootstrap-clrhkr-it-' + newColors.info, newColors.infoText);
         }
-        newColors.infoDark = localStorage.getItem('bootstrap-clrhkr-id-' + newColors.info);
+        newColors.infoDark = storageGet('bootstrap-clrhkr-id-' + newColors.info);
         if (!newColors.infoDark) {
             newColors.infoDark = darkerColor(newColors.info, newColors.info, 1);
-            localStorage.setItem('bootstrap-clrhkr-id-' + newColors.info, newColors.infoDark);
+            storageSet('bootstrap-clrhkr-id-' + newColors.info, newColors.infoDark);
         }
-        newColors.infoMedium = localStorage.getItem('bootstrap-clrhkr-im-' + newColors.info);
+        newColors.infoMedium = storageGet('bootstrap-clrhkr-im-' + newColors.info);
         if (!newColors.infoMedium) {
             var rgb = hexToRgb(newColors.info);
             newColors.infoMedium = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.6)';
-            localStorage.setItem('bootstrap-clrhkr-im-' + newColors.info, newColors.infoMedium);
+            storageSet('bootstrap-clrhkr-im-' + newColors.info, newColors.infoMedium);
         }
-        newColors.infoLight = localStorage.getItem('bootstrap-clrhkr-il-' + newColors.info);
+        newColors.infoLight = storageGet('bootstrap-clrhkr-il-' + newColors.info);
         if (!newColors.infoLight) {
             var rgb = hexToRgb(newColors.info);
             newColors.infoLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.4)';
-            localStorage.setItem('bootstrap-clrhkr-il-' + newColors.info, newColors.infoLight);
+            storageSet('bootstrap-clrhkr-il-' + newColors.info, newColors.infoLight);
         }
         
         css += CSS_TEMPLATE_INFO.replace(/%info%/g, newColors.info)

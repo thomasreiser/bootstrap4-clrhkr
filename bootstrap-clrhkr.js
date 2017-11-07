@@ -135,7 +135,7 @@ window.HackBootstrapColors = function(colors) {
     } \
     .btn-primary:focus, .btn-primary.focus, .btn-outline-primary:focus, .btn-outline-primary.focus, .btn:focus, .btn.focus { \
         -webkit-box-shadow: 0 0 0 2px %primary_light%; \
-        box-shadow: 0 0 0 2px %primary_light%; \
+        box-shadow: 0 0 0 0.2rem rgba(%primary_rgb%, 0.25) !important; \
     } \
     .dropdown-item.active, \
     .dropdown-item:active, \
@@ -168,6 +168,7 @@ window.HackBootstrapColors = function(colors) {
     .form-control:focus, \
     .custom-select:focus { \
         border-color: %primary%; \
+        box-shadow: 0 0 0 0.2rem rgba(%primary_rgb%, 0.25) !important; \
     } \
     .page-link { \
         color: %primary%; \
@@ -307,6 +308,12 @@ window.HackBootstrapColors = function(colors) {
             newColors.primaryLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.4)';
             storageSet('bootstrap-clrhkr-pl-' + newColors.primary, newColors.primaryLight);
         }
+        newColors.primaryRgb = storageGet('bootstrap-clrhkr-prgb-' + newColors.primary);
+        if (!newColors.primaryRgb) {
+            var rgb = hexToRgb(newColors.primary);
+            newColors.primaryRgb = rgb.r + ',' + rgb.g + ',' + rgb.b;
+            storageSet('bootstrap-clrhkr-prgb-' + newColors.primary, newColors.primaryRgb);
+        }
         newColors.primaryLinkBg = storageGet('bootstrap-clrhkr-plb-' + newColors.primary);
         if (!newColors.primaryLinkBg) {
             if (!whiteText(newColors.primary)) {
@@ -333,7 +340,8 @@ window.HackBootstrapColors = function(colors) {
                                    .replace(/%primary_link%/g, newColors.primaryLink)
                                    .replace(/%primary_dark%/g, newColors.primaryDark)
                                    .replace(/%primary_text_dark%/g, newColors.primaryTextDark)
-                                   .replace(/%primary_light%/g, newColors.primaryLight);
+                                   .replace(/%primary_light%/g, newColors.primaryLight)
+                                   .replace(/%primary_rgb%/g, newColors.primaryRgb);
     }
     
     if (newColors.info !== defaultColors.info) {

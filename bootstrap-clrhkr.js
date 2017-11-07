@@ -1,5 +1,5 @@
 /*
- Bootstrap Colorhacker V0.1 (compatible to Bootstrap 4 alpha 6)
+ Bootstrap Colorhacker V0.1 (compatible to Bootstrap 4 beta 2)
  
  Copyright (c) 2017 Thomas Reiser
  
@@ -103,7 +103,7 @@ window.HackBootstrapColors = function(colors) {
     .btn-primary { \
         background-color: %primary%; \
         border-color: %primary%; \
-        color: %primary_text%; \
+        color: %primary_text% !important; \
     } \
     .btn-primary:active, .btn-primary.active, \
     .show > .btn-primary.dropdown-toggle, \

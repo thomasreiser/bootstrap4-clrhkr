@@ -111,9 +111,9 @@ window.HackBootstrapColors = function(colors) {
     .btn-outline-primary:active, \
     .btn-outline-primary.active, \
     .show > .btn-outline-primary.dropdown-toggle { \
-        background-color: %primary_dark%; \
-        border-color: %primary_dark%; \
-        color: %primary_text%; \
+        background-color: %primary_dark% !important; \
+        border-color: %primary_dark% !important; \
+        color: %primary_text% !important; \
     } \
     .btn-outline-primary:hover, \
     .btn-primary.disabled, \

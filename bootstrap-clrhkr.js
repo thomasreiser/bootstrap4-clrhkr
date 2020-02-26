@@ -1,34 +1,34 @@
 /*
- Bootstrap Colorhacker V0.1 (compatible to Bootstrap 4 beta 2)
- 
- Copyright (c) 2017 Thomas Reiser
- 
+ Bootstrap Colorhacker V0.2 (compatible to Bootstrap 4.4)
+
+ Copyright (c) 2017-2020 Thomas Reiser
+
  Released under the MIT license
 */
-window.HackBootstrapColors = function(colors) {
+window.HackBootstrapColors = function (colors) {
     if (!window.HACK_BOOTSTRAP_COLOR_RANDOM_ID) {
-    window.HACK_BOOTSTRAP_COLOR_RANDOM_ID = 'bsclrhkr-' + Date.now();
+        window.HACK_BOOTSTRAP_COLOR_RANDOM_ID = 'bsclrhkr-' + Date.now();
     }
 
     colors = colors || {};
-    
+
     // Define default colors taken from Bootstrap CSS
     var defaultColors = {
         primary: '#0275d8',
         info: '#5bc0de'
     };
     var newColors = JSON.parse(JSON.stringify(defaultColors));
-    
+
     // Merge pre-defined colors with colors given by the user
     var RGB_REGEX = /^#[0-9A-F]{6}$/i;
-    Object.keys(colors).forEach(function(type) {
+    Object.keys(colors).forEach(function (type) {
         // Check if it is a valid color code
         if (RGB_REGEX.test(colors[type])) {
             newColors[type] = colors[type].toLowerCase();
         }
     });
-    
-    var hexToRgb = function(hex) {
+
+    var hexToRgb = function (hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
             r: parseInt(result[1], 16),
@@ -36,17 +36,17 @@ window.HackBootstrapColors = function(colors) {
             b: parseInt(result[3], 16)
         } : null;
     };
-    var rgbToHex = function(rgb) {
+    var rgbToHex = function (rgb) {
         return '#' + ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
     };
-    var luminance = function(r, g, b) {
-        var a = [r, g, b].map(function(v) {
+    var luminance = function (r, g, b) {
+        var a = [r, g, b].map(function (v) {
             v /= 255;
             return (v <= 0.03928) ? v / 12.92 : Math.pow(((v + 0.055) / 1.055), 2.4);
         });
         return a[0] * 0.2126 + a[1] * 0.7152 + a[2] * 0.0722;
     };
-    var darkerColor = function(hex1, hex2, diff) {
+    var darkerColor = function (hex1, hex2, diff) {
         var base = hexToRgb(hex1);
         var lum = luminance(base.r, base.g, base.b) + 0.05;
         var darkened = hexToRgb(hex2);
@@ -63,11 +63,11 @@ window.HackBootstrapColors = function(colors) {
             return '#000000';
         }
     };
-    var whiteText = function(hex) {
+    var whiteText = function (hex) {
         var rgb = hexToRgb(hex);
         return (1.05 /* (luminance(255, 255, 255) + 0.05) */ / (luminance(rgb.r, rgb.g, rgb.b) + 0.05)) > 1.5;
     };
-    
+
     var CSS_TEMPLATE_PRIMARY = '\
     .primary-color { \
         color: %primary%; \
@@ -136,6 +136,8 @@ window.HackBootstrapColors = function(colors) {
     .btn-primary:focus, .btn-primary.focus, .btn-outline-primary:focus, .btn-outline-primary.focus, .btn:focus, .btn.focus { \
         -webkit-box-shadow: 0 0 0 2px %primary_light%; \
         box-shadow: 0 0 0 0.2rem rgba(%primary_rgb%, 0.25) !important; \
+        background-color: %primary% !important; \
+        border-color: %primary_light% !important; \
     } \
     .dropdown-item.active, \
     .dropdown-item:active, \
@@ -195,7 +197,7 @@ window.HackBootstrapColors = function(colors) {
         color: %primary_dark% !important; \
     } \
     ';
-    
+
     var CSS_TEMPLATE_INFO = '\
     .btn-info { \
         background-color: %info%; \
@@ -259,24 +261,24 @@ window.HackBootstrapColors = function(colors) {
         color: %info_text%; \
     } \
     ';
-    
+
     var css = '';
-    
-    var storageGet = function(key) {
+
+    var storageGet = function (key) {
         try {
             return localStorage.getItem(key);
         } catch (e) {
             return null;
         }
     };
-    
-    var storageSet = function(key, value) {
+
+    var storageSet = function (key, value) {
         try {
             localStorage.setItem(key, value);
         } catch (e) {
         }
     };
-    
+
     if (newColors.primary !== defaultColors.primary) {
         // Calculate optimal color shades for primary color
         newColors.primaryText = storageGet('bootstrap-clrhkr-pt-' + newColors.primary);
@@ -333,17 +335,17 @@ window.HackBootstrapColors = function(colors) {
             }
             storageSet('bootstrap-clrhkr-plk-' + newColors.primary, newColors.primaryLink);
         }
-        
+
         css += CSS_TEMPLATE_PRIMARY.replace(/%primary%/g, newColors.primary)
-                                   .replace(/%primary_text%/g, newColors.primaryText)
-                                   .replace(/%primary_link_bg%/g, newColors.primaryLinkBg)
-                                   .replace(/%primary_link%/g, newColors.primaryLink)
-                                   .replace(/%primary_dark%/g, newColors.primaryDark)
-                                   .replace(/%primary_text_dark%/g, newColors.primaryTextDark)
-                                   .replace(/%primary_light%/g, newColors.primaryLight)
-                                   .replace(/%primary_rgb%/g, newColors.primaryRgb);
+            .replace(/%primary_text%/g, newColors.primaryText)
+            .replace(/%primary_link_bg%/g, newColors.primaryLinkBg)
+            .replace(/%primary_link%/g, newColors.primaryLink)
+            .replace(/%primary_dark%/g, newColors.primaryDark)
+            .replace(/%primary_text_dark%/g, newColors.primaryTextDark)
+            .replace(/%primary_light%/g, newColors.primaryLight)
+            .replace(/%primary_rgb%/g, newColors.primaryRgb);
     }
-    
+
     if (newColors.info !== defaultColors.info) {
         // Calculate optimal color shades for info color
         newColors.infoText = storageGet('bootstrap-clrhkr-it-' + newColors.info);
@@ -372,14 +374,14 @@ window.HackBootstrapColors = function(colors) {
             newColors.infoLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.4)';
             storageSet('bootstrap-clrhkr-il-' + newColors.info, newColors.infoLight);
         }
-        
+
         css += CSS_TEMPLATE_INFO.replace(/%info%/g, newColors.info)
-                                .replace(/%info_text%/g, newColors.infoText)
-                                .replace(/%info_dark%/g, newColors.infoDark)
-                                .replace(/%info_medium%/g, newColors.infoMedium)
-                                .replace(/%info_light%/g, newColors.infoLight);
+            .replace(/%info_text%/g, newColors.infoText)
+            .replace(/%info_dark%/g, newColors.infoDark)
+            .replace(/%info_medium%/g, newColors.infoMedium)
+            .replace(/%info_light%/g, newColors.infoLight);
     }
-    
+
     if (css.length > 0) {
         var style = document.querySelector('style#' + HACK_BOOTSTRAP_COLOR_RANDOM_ID);
         if (!style) {
@@ -396,17 +398,17 @@ window.HackBootstrapColors = function(colors) {
 var scriptElem = document.querySelector('script#bootstrap-clrhkr');
 if (scriptElem) {
     var newColors = {};
-    
+
     var primaryColor = scriptElem.getAttribute('data-primary-color');
     if (primaryColor) {
         newColors.primary = primaryColor;
     }
-    
+
     var infoColor = scriptElem.getAttribute('data-info-color');
     if (infoColor) {
         newColors.info = infoColor;
     }
-    
+
     if (Object.keys(newColors).length > 0) {
         HackBootstrapColors(newColors);
     }

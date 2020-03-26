@@ -140,13 +140,17 @@ window.HackBootstrapColors = function (colors) {
         border-color: %primary_light% !important; \
         color: %primary_text%; \
     } \
+    .btn-primary.focus.disabled, .btn-primary.disabled:focus { \
+        -webkit-box-shadow: none; \
+        box-shadow: none; \
+    } \
     .dropdown-item.active, \
     .dropdown-item:active, \
     .custom-control-input:checked ~ .custom-control-indicator, \
     .custom-checkbox .custom-control-input:indeterminate ~ .custom-control-indicator { \
         background-color: %primary%; \
     } \
-        .custom-control-input:focus ~ .custom-control-indicator { \
+    .custom-control-input:focus ~ .custom-control-indicator { \
         -webkit-box-shadow: 0 0 0 1px #fff, 0 0 0 3px %primary%; \
         box-shadow: 0 0 0 1px #fff, 0 0 0 3px %primary%; \
     } \

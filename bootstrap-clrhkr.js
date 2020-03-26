@@ -133,7 +133,7 @@ window.HackBootstrapColors = function (colors) {
         color: %primary%; \
         border-color: %primary%; \
     } \
-    .btn-primary:focus, .btn-primary.focus, .btn-outline-primary:focus, .btn-outline-primary.focus, .btn:focus, .btn.focus { \
+    .btn-primary:focus:not(.disabled), .btn-primary.focus:not(.disabled), .btn-outline-primary:focus:not(.disabled), .btn-outline-primary.focus:not(.disabled), .btn:focus:not(.disabled), .btn.focus:not(.disabled) { \
         -webkit-box-shadow: 0 0 0 2px %primary_light%; \
         box-shadow: 0 0 0 0.2rem rgba(%primary_rgb%, 0.25) !important; \
         background-color: %primary% !important; \

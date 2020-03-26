@@ -138,6 +138,7 @@ window.HackBootstrapColors = function (colors) {
         box-shadow: 0 0 0 0.2rem rgba(%primary_rgb%, 0.25) !important; \
         background-color: %primary% !important; \
         border-color: %primary_light% !important; \
+        color: %primary_text%; \
     } \
     .dropdown-item.active, \
     .dropdown-item:active, \
